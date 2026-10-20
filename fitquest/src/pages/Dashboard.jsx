@@ -29,29 +29,33 @@ export default function Dashboard() {
     })();
   }, []);
 
-  if (!stats) return <p>Loading...</p>;
+  if (!stats) return <p className="empty">Loading...</p>;
   const max = Math.max(...stats.byHour, 1);
 
   return (
     <div>
-      <div className="card">
-        <h3>Township dashboard (last 7 days)</h3>
-        <div className="row"><span>Active residents</span><b>{stats.users}</b></div>
-        <div className="row"><span>Activity sessions</span><b>{stats.sessions}</b></div>
-        <div className="row"><span>Flagged as suspicious</span><b>{stats.flagged}</b></div>
+      <h2 style={{ marginBottom: 12 }}>Township view</h2>
+      <div className="tiles">
+        <div className="tile"><b>{stats.users}</b><span>active residents</span></div>
+        <div className="tile"><b>{stats.sessions}</b><span>sessions</span></div>
+        <div className="tile"><b>{stats.flagged}</b><span>flagged</span></div>
       </div>
+
       <div className="card">
-        <h3>Usage by hour</h3>
+        <h3>When people exercise</h3>
+        <div className="muted">Sessions by hour, last 7 days</div>
         <div className="bars">
           {stats.byHour.map((n, h) => (
             <div key={h} className="bar" title={`${h}:00 - ${n}`} style={{ height: (n / max) * 100 + "%" }} />
           ))}
         </div>
-        <div className="small">0h to 23h</div>
+        <div className="axis"><span>12 am</span><span>6 am</span><span>12 pm</span><span>6 pm</span><span>11 pm</span></div>
       </div>
+
       <div className="card">
-        <h3>Sessions by park</h3>
-        {Object.entries(stats.byPark).map(([p, n]) => (
+        <h3>Busiest parks</h3>
+        {Object.keys(stats.byPark).length === 0 && <p className="empty">No park activity yet.</p>}
+        {Object.entries(stats.byPark).sort((a, b) => b[1] - a[1]).map(([p, n]) => (
           <div key={p} className="row"><span>{p}</span><b>{n}</b></div>
         ))}
       </div>

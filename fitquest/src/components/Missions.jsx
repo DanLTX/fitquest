@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { MISSIONS, startOfDay } from "../lib/scoring";
 
-export default function Missions({ profile, refreshProfile }) {
+export default function Missions({ profile, refreshProfile, refreshKey }) {
   const [acts, setActs] = useState([]);
 
   async function load() {
@@ -14,7 +14,7 @@ export default function Missions({ profile, refreshProfile }) {
     setActs(data ?? []);
   }
 
-  useEffect(() => { load(); }, [profile.points]);
+  useEffect(() => { load(); }, [profile.points, refreshKey]);
 
   async function claim(m) {
     const { error } = await supabase
@@ -34,13 +34,16 @@ export default function Missions({ profile, refreshProfile }) {
         const claimed = acts.some((a) => a.type === `mission:${m.id}`);
         return (
           <div key={m.id} className="row">
-            <div>
+            <div className="grow">
               <b>{m.title}</b>
-              <div className="small">{Math.min(value, m.goal)} / {m.goal}</div>
+              <div className="bar-track">
+                <div className="bar-fill" style={{ width: Math.min(value / m.goal, 1) * 100 + "%" }} />
+              </div>
+              <div className="muted">{Math.min(value, m.goal).toLocaleString()} of {m.goal.toLocaleString()}</div>
             </div>
-            {claimed ? <span>Claimed</span> : (
-              <button disabled={!done} onClick={() => claim(m)}>+{m.points} pts</button>
-            )}
+            {claimed
+              ? <span className="muted">Claimed</span>
+              : <button className="btn btn-sm btn-forest" disabled={!done} onClick={() => claim(m)}>+{m.points} pts</button>}
           </div>
         );
       })}

@@ -3,6 +3,8 @@ import { supabase } from "../lib/supabase";
 import ExerciseCam from "../components/ExerciseCam";
 import { REP_VALUE, effort, pointsFor } from "../lib/scoring";
 
+const LABELS = { squat: "Squats", pushup: "Push-ups" };
+
 export default function Exercise({ profile, refreshProfile }) {
   const [type, setType] = useState("squat");
   const [active, setActive] = useState(false);
@@ -18,22 +20,35 @@ export default function Exercise({ profile, refreshProfile }) {
     const pts = pointsFor(effort({ type, value: reps }));
     await supabase.from("profiles").update({ points: profile.points + pts }).eq("id", profile.id);
     await refreshProfile();
-    setMsg(`Saved ${reps} ${type}s (+${pts} pts).`);
+    setMsg(`Saved ${reps} ${LABELS[type].toLowerCase()}. You earned ${pts} points.`);
   }
 
-  if (active) return <div className="card"><ExerciseCam type={type} onFinish={finish} /></div>;
+  if (active) return <ExerciseCam type={type} onFinish={finish} />;
 
   return (
-    <div className="card">
-      <h3>AI exercise counter</h3>
-      <select value={type} onChange={(e) => setType(e.target.value)}>
-        {Object.keys(REP_VALUE).map((t) => <option key={t} value={t}>{t}</option>)}
-      </select>
-      <p className="small">
-        Prop your phone about 2 m away, filming from the side, with your full body in view and good light.
-      </p>
-      <button className="primary" onClick={() => { setMsg(""); setActive(true); }}>Start camera</button>
-      {msg && <p>{msg}</p>}
+    <div>
+      <div className="card">
+        <h2>Train with your camera</h2>
+        <p className="muted" style={{ margin: "6px 0 16px" }}>
+          The app counts each full rep, so only real effort earns points.
+        </p>
+
+        <div className="seg">
+          {Object.keys(REP_VALUE).map((t) => (
+            <button key={t} className={type === t ? "on" : ""} onClick={() => setType(t)}>{LABELS[t]}</button>
+          ))}
+        </div>
+
+        <div className="row"><span>Prop your phone about 2 m away</span></div>
+        <div className="row"><span>Stand side-on so your full body is visible</span></div>
+        <div className="row"><span>Use good light and a plain background</span></div>
+
+        <button className="btn btn-forest btn-block" style={{ marginTop: 16 }}
+          onClick={() => { setMsg(""); setActive(true); }}>
+          Start camera
+        </button>
+        {msg && <p className="muted" style={{ marginTop: 12 }}>{msg}</p>}
+      </div>
     </div>
   );
 }

@@ -36,7 +36,7 @@ export default function Leaderboard({ profile }) {
     return () => { supabase.removeChannel(ch); };
   }, []);
 
-  const medal = ["1st", "2nd", "3rd"];
+  const rankClass = (i) => (i < 3 ? " r" + (i + 1) : "");
 
   const league = rows
     .filter((r) => r.league === profile.league)
@@ -53,33 +53,48 @@ export default function Leaderboard({ profile }) {
     .sort((a, b) => b.avg - a.avg);
 
   return (
-    <div className="card">
-      <div className="row">
-        <button className={view === "league" ? "primary" : ""} onClick={() => setView("league")}>
+    <div>
+      <div className="seg">
+        <button className={view === "league" ? "on" : ""} onClick={() => setView("league")}>
           {profile.league} league
         </button>
-        <button className={view === "teams" ? "primary" : ""} onClick={() => setView("teams")}>
+        <button className={view === "teams" ? "on" : ""} onClick={() => setView("teams")}>
           Neighbourhoods
         </button>
       </div>
 
-      {view === "league" && (league.length === 0 ? <p>No activity yet today.</p> :
-        league.map((r, i) => (
-          <div key={r.user_id} className={"row" + (r.user_id === profile.id ? " me" : "")}>
-            <span>{medal[i] ?? i + 1 + "th"} {r.name}</span>
-            <b>{r.score}</b>
-          </div>
-        )))}
+      <div className="card">
+        {view === "league" && (league.length === 0
+          ? <p className="empty">No activity yet today. Start a walk to get on the board.</p>
+          : league.map((r, i) => (
+            <div key={r.user_id} className={"row" + (r.user_id === profile.id ? " me" : "")}>
+              <span className={"rank" + rankClass(i)}>{i + 1}</span>
+              <div className="grow">
+                <b>{r.name}{r.user_id === profile.id && " (you)"}</b>
+                <div className="bar-track"><div className="bar-fill" style={{ width: Math.min(r.score / 2, 100) + "%" }} /></div>
+              </div>
+              <span className="score">{r.score}</span>
+            </div>
+          )))}
 
-      {view === "teams" && (teams.length === 0 ? <p>No activity yet today.</p> :
-        teams.map((t, i) => (
-          <div key={t.name} className="row">
-            <span>{medal[i] ?? i + 1 + "th"} {t.name} ({t.n} active)</span>
-            <b>{t.avg}</b>
-          </div>
-        )))}
+        {view === "teams" && (teams.length === 0
+          ? <p className="empty">No activity yet today.</p>
+          : teams.map((t, i) => (
+            <div key={t.name} className={"row" + (t.name === profile.neighbourhood ? " me" : "")}>
+              <span className={"rank" + rankClass(i)}>{i + 1}</span>
+              <div className="grow">
+                <b>{t.name}</b>
+                <div className="muted">{t.n} active</div>
+                <div className="bar-track"><div className="bar-fill" style={{ width: Math.min(t.avg / 2, 100) + "%" }} /></div>
+              </div>
+              <span className="score">{t.avg}</span>
+            </div>
+          )))}
+      </div>
 
-      <p className="small">Score = today's effort vs your own baseline. Team score = average per active member.</p>
+      <p className="muted">
+        Score compares today's effort with your own goal. A team's score is the average of its active members.
+      </p>
     </div>
   );
 }

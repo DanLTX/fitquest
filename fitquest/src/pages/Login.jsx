@@ -29,23 +29,33 @@ export default function Login({ onDone }) {
   }
 
   return (
-    <form className="card" onSubmit={submit}>
-      <h2>FitQuest</h2>
-      {mode === "signup" && (
-        <>
-          <input placeholder="Display name" value={name} onChange={(e) => setName(e.target.value)} required />
-          <select value={hood} onChange={(e) => setHood(e.target.value)}>
-            {NEIGHBOURHOODS.map((n) => <option key={n}>{n}</option>)}
-          </select>
-        </>
-      )}
-      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      <input type="password" placeholder="Password (min 6)" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      {err && <p className="warn">{err}</p>}
-      <button className="primary" type="submit">{mode === "signup" ? "Create account" : "Log in"}</button>
-      <button type="button" onClick={() => setMode(mode === "signup" ? "login" : "signup")}>
-        {mode === "signup" ? "I already have an account" : "Create a new account"}
-      </button>
-    </form>
+    <div>
+      <div className="login-hero">
+        <h1>FitQuest</h1>
+        <p>Walk, train and earn rewards from shops in your township.</p>
+      </div>
+
+      <form className="card login-card" onSubmit={submit}>
+        <div className="seg">
+          <button type="button" className={mode === "signup" ? "on" : ""} onClick={() => setMode("signup")}>Sign up</button>
+          <button type="button" className={mode === "login" ? "on" : ""} onClick={() => setMode("login")}>Log in</button>
+        </div>
+
+        {mode === "signup" && (
+          <>
+            <input placeholder="Display name" value={name} onChange={(e) => setName(e.target.value)} required />
+            <select value={hood} onChange={(e) => setHood(e.target.value)}>
+              {NEIGHBOURHOODS.map((n) => <option key={n}>{n}</option>)}
+            </select>
+          </>
+        )}
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Password (at least 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        {err && <p className="err">{err}</p>}
+        <button className="btn btn-forest btn-block" style={{ marginTop: 14 }} type="submit">
+          {mode === "signup" ? "Create account" : "Log in"}
+        </button>
+      </form>
+    </div>
   );
 }

@@ -20,7 +20,7 @@ export default function Rewards({ profile, refreshProfile }) {
   useEffect(() => { load(); }, []);
 
   async function claim(r) {
-    if (profile.points < r.cost) return setMsg("Not enough points.");
+    if (profile.points < r.cost) return setMsg("Not enough points yet.");
     const { error } = await supabase.from("claims").insert({ user_id: profile.id, reward_id: r.id });
     if (error) return setMsg(error.message);
     await supabase.from("profiles").update({ points: profile.points - r.cost }).eq("id", profile.id);
@@ -31,22 +31,37 @@ export default function Rewards({ profile, refreshProfile }) {
 
   return (
     <div>
+      <div className="balance">
+        <span>Your points</span>
+        <b>{profile.points}</b>
+      </div>
+
       <div className="card">
-        <h3>Rewards ({profile.points} pts)</h3>
+        <h3>Rewards from local shops</h3>
         {rewards.map((r) => (
           <div key={r.id} className="row">
-            <div><b>{r.title}</b><div className="small">{r.sponsor}</div></div>
-            <button disabled={profile.points < r.cost} onClick={() => claim(r)}>{r.cost} pts</button>
+            <span className="logo-dot">{r.sponsor?.[0]}</span>
+            <div className="grow">
+              <b>{r.title}</b>
+              <div className="muted">{r.sponsor}</div>
+            </div>
+            <button className="btn btn-sm btn-forest" disabled={profile.points < r.cost} onClick={() => claim(r)}>
+              {r.cost} pts
+            </button>
           </div>
         ))}
-        {msg && <p>{msg}</p>}
+        {msg && <p className="muted" style={{ marginTop: 10 }}>{msg}</p>}
       </div>
+
       <div className="card">
         <h3>My vouchers</h3>
-        {claims.length === 0 && <p className="small">None yet.</p>}
+        {claims.length === 0 && <p className="empty">No vouchers yet. Earn points to claim one.</p>}
         {claims.map((c) => (
-          <div key={c.id} className="row">
-            <span>{c.rewards?.title}</span>
+          <div key={c.id} className="voucher">
+            <div>
+              <b>{c.rewards?.title}</b>
+              <div className="muted">{c.rewards?.sponsor}</div>
+            </div>
             <code>FQ-{c.id}</code>
           </div>
         ))}

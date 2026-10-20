@@ -48,12 +48,22 @@ export default function ExerciseCam({ type, onFinish }) {
 
   return (
     <div>
-      <video ref={videoRef} playsInline muted className="cam" />
-      {status && <p>{status}</p>}
-      <h1 className="big">{info.reps} reps</h1>
-      {!info.visible && !status && <p className="warn">Move back so your full body is visible</p>}
-      <p className="small">angle: {info.angle ?? "-"} | stage: {info.stage}</p>
-      <button className="primary" onClick={() => onFinish(info.reps)}>Finish and save</button>
+      <div className="cam-wrap">
+        <video ref={videoRef} playsInline muted className="cam" />
+        <div className="cam-top">
+          <span className="pill">{status || (info.visible ? "Tracking" : "Move back until your full body is visible")}</span>
+        </div>
+        <div className="cam-hud">
+          <div>
+            <div className="cam-reps">{info.reps}</div>
+            <div>reps</div>
+          </div>
+          <span className="pill">angle {info.angle ?? "-"} ({info.stage})</span>
+        </div>
+      </div>
+      <button className="btn btn-forest btn-block" onClick={() => onFinish(info.reps)}>
+        Finish and save
+      </button>
     </div>
   );
 }
